@@ -4,14 +4,14 @@ import 'package:intl/intl.dart';
 final FirebaseDatabase database = FirebaseDatabase.instance;
 final DateFormat dbDateFormat = DateFormat("yyyy-MM-dd");
 
-class PlayDate {
+class Event {
 
   final DateTime date;
   final String description;
 
-  PlayDate(this.date, this.description);
+  Event(this.date, this.description);
 
-  PlayDate.fromJson(Map<dynamic, dynamic> json)
+  Event.fromJson(Map<dynamic, dynamic> json)
       : date =  DateTime.parse(json['datum'] as String),
         description = json['beschreibung'] as String;
 
@@ -21,12 +21,12 @@ class PlayDate {
   };
 }
 
-class PlayDateDao {
+class EventDao {
 
-  final Query _dateRef = database.ref().child('termin').orderByChild("datum");
+  final Query _eventRef = database.ref().child('termin').orderByChild("datum");
 
-  Query getDateQuery() {
-    return _dateRef;
+  Query getEventQuery() {
+    return _eventRef;
   }
 }
 

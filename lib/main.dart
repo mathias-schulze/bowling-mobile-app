@@ -60,7 +60,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: const TabBarView(
           children: [
             ResultTab(),
-            DateTab(),
+            EventTab(),
             PlayerTab(),
           ]
       ),
@@ -114,23 +114,23 @@ class _Result {
   _Result(this._player, this._score);
 }
 
-class DateTab extends StatefulWidget {
-  const DateTab({Key? key}) : super(key: key);
+class EventTab extends StatefulWidget {
+  const EventTab({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _DateTabState();
+  State<StatefulWidget> createState() => _EventTabState();
 }
 
-class _DateTabState extends State<DateTab> {
+class _EventTabState extends State<EventTab> {
 
   final DateFormat dateFormat = DateFormat("dd.MM.yyyy");
 
-  late Query _dateRef;
+  late Query _eventRef;
 
   @override
   void initState() {
     super.initState();
-    _dateRef = PlayDateDao().getDateQuery();
+    _eventRef = EventDao().getEventQuery();
   }
   
   @override
@@ -139,12 +139,12 @@ class _DateTabState extends State<DateTab> {
       body: SizedBox(
         height: double.infinity,
         child: FirebaseAnimatedList(
-          query: _dateRef,
+          query: _eventRef,
           itemBuilder: (context, snapshot, animation, index) {
             final json = snapshot.value as Map<dynamic, dynamic>;
-            final date = PlayDate.fromJson(json);
+            final event = Event.fromJson(json);
             return ListTile(
-              title: Text(dateFormat.format(date.date) + " " + date.description),
+              title: Text(dateFormat.format(event.date) + " " + event.description),
             );
           },
         ),
