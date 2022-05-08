@@ -1,7 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
+import 'package:firebase_database/ui/firebase_animated_list.dart';
+import 'firebase_options.dart';
+import 'data_service.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(const MyApp());
 }
 
@@ -116,23 +125,29 @@ class _DateTabState extends State<DateTab> {
 
   final DateFormat dateFormat = DateFormat("dd.MM.yyyy");
 
-  final _dates = <_Date>[
-    _Date(DateTime.parse("2020-02-04"), "XXL Bowling 117"),
-    _Date(DateTime.parse("2020-03-03"), "XXL Bowling 118"),
-    _Date(DateTime.parse("2022-05-03"), "XXL Bowling 119"),
-  ];
+  late Query _dateRef;
+
+  @override
+  void initState() {
+    super.initState();
+    _dateRef = PlayDateDao().getDateQuery();
+  }
   
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: ListView.builder(
-          itemCount: _dates.length,
-          itemBuilder: (context, index) {
-            var date = _dates[index];
+      body: SizedBox(
+        height: double.infinity,
+        child: FirebaseAnimatedList(
+          query: _dateRef,
+          itemBuilder: (context, snapshot, animation, index) {
+            final json = snapshot.value as Map<dynamic, dynamic>;
+            final date = PlayDate.fromJson(json);
             return ListTile(
-              title: Text(dateFormat.format(date._date) + " " + date._desc),
+              title: Text(dateFormat.format(date.date) + " " + date.description),
             );
-          }
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => () {},
@@ -141,13 +156,6 @@ class _DateTabState extends State<DateTab> {
       ),
     );
   }
-}
-
-class _Date {
-  final DateTime _date;
-  final String _desc;
-
-  _Date(this._date, this._desc);
 }
 
 class PlayerTab extends StatefulWidget {
@@ -159,24 +167,30 @@ class PlayerTab extends StatefulWidget {
 
 class _PlayerTabState extends State<PlayerTab> {
 
-  final _player = <_Player>[
-    _Player("Christian"),
-    _Player("Fahd"),
-    _Player("Mathias"),
-    _Player("Norbert"),
-  ];
+  late Query _playerRef;
+
+  @override
+  void initState() {
+    super.initState();
+    _playerRef = PlayerDao().getPlayerQuery();
+  }
 
   @override
   Widget build(BuildContext context) {
     
     return Scaffold(
-      body: ListView.builder(
-        itemCount: _player.length,
-        itemBuilder: (context, index) {
-          return ListTile(
-            title: Text(_player[index]._name),
-          );
-        }
+      body: SizedBox(
+        height: double.infinity,
+        child: FirebaseAnimatedList(
+          query: _playerRef,
+          itemBuilder: (context, snapshot, animation, index) {
+            final json = snapshot.value as Map<dynamic, dynamic>;
+            final player = Player.fromJson(json);
+            return ListTile(
+              title: Text(player.name),
+            );
+          },
+        ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => () {},
@@ -185,10 +199,4 @@ class _PlayerTabState extends State<PlayerTab> {
       ),
     );
   }
-}
-
-class _Player {
-  final String _name;
-
-  _Player(this._name);
 }
