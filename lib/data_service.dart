@@ -29,26 +29,3 @@ class EventDao {
     return _eventRef;
   }
 }
-
-class Player {
-
-  final String name;
-
-  Player(this.name);
-
-  Player.fromJson(Map<dynamic, dynamic> json)
-      : name = json['name'] as String;
-
-  Map<dynamic, dynamic> toJson() => <dynamic, dynamic>{
-    'name': name,
-  };
-}
-
-class PlayerDao {
-
-  final Query _playerRef = database.ref().child('spieler').orderByChild("name");
-
-  Query getPlayerQuery() {
-    return _playerRef;
-  }
-}

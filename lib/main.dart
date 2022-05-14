@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -5,13 +6,16 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'firebase_options.dart';
 import 'data_service.dart';
+import 'package:bowling_app/player.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
-  FirebaseDatabase.instance.setPersistenceEnabled(true);
+  if (!kIsWeb) {
+    FirebaseDatabase.instance.setPersistenceEnabled(true);
+  }
   runApp(const MyApp());
 }
 
@@ -154,49 +158,6 @@ class _EventTabState extends State<EventTab> {
         onPressed: () => () {},
         tooltip: 'Termin anlegen',
         child: const Icon(Icons.insert_invitation),
-      ),
-    );
-  }
-}
-
-class PlayerTab extends StatefulWidget {
-  const PlayerTab({Key? key}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _PlayerTabState();
-}
-
-class _PlayerTabState extends State<PlayerTab> {
-
-  late Query _playerRef;
-
-  @override
-  void initState() {
-    super.initState();
-    _playerRef = PlayerDao().getPlayerQuery();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    
-    return Scaffold(
-      body: SizedBox(
-        height: double.infinity,
-        child: FirebaseAnimatedList(
-          query: _playerRef,
-          itemBuilder: (context, snapshot, animation, index) {
-            final json = snapshot.value as Map<dynamic, dynamic>;
-            final player = Player.fromJson(json);
-            return ListTile(
-              title: Text(player.name),
-            );
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => () {},
-        tooltip: 'Spieler anlegen',
-        child: const Icon(Icons.person_add),
       ),
     );
   }
