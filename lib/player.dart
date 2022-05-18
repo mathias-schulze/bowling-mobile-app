@@ -48,7 +48,7 @@ class _PlayerTabState extends State<PlayerTab> {
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final name = await _showAddPlayerDialog();
-          addPlayer(name);
+          _addPlayer(name);
         },
         tooltip: 'Spieler anlegen',
         child: const Icon(Icons.person_add),
@@ -64,7 +64,7 @@ class _PlayerTabState extends State<PlayerTab> {
         autofocus: true,
         decoration: const InputDecoration(label: Text("Name")),
         controller: _controller,
-        onSubmitted: (_) => _closeAddPlayerDialog(),
+        onSubmitted: (_) => _closeAddPlayerDialog,
       ),
       actions: [
         TextButton(
@@ -80,7 +80,7 @@ class _PlayerTabState extends State<PlayerTab> {
     _controller.clear();
   }
 
-  void addPlayer(String? name) {
+  void _addPlayer(String? name) {
 
     if (name == null || name.isEmpty) {
       return;

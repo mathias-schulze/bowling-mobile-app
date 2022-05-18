@@ -4,10 +4,9 @@ import 'package:intl/intl.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
-import 'package:firebase_database/ui/firebase_animated_list.dart';
 import 'firebase_options.dart';
-import 'data_service.dart';
-import 'package:bowling_app/player.dart';
+import 'event.dart';
+import 'player.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -127,48 +126,4 @@ class _Result {
   final double _score;
 
   _Result(this._player, this._score);
-}
-
-class EventTab extends StatefulWidget {
-  const EventTab({Key? key}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _EventTabState();
-}
-
-class _EventTabState extends State<EventTab> {
-
-  final DateFormat dateFormat = DateFormat("dd.MM.yyyy");
-
-  late Query _eventRef;
-
-  @override
-  void initState() {
-    super.initState();
-    _eventRef = EventDao().getEventQuery();
-  }
-  
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SizedBox(
-        height: double.infinity,
-        child: FirebaseAnimatedList(
-          query: _eventRef,
-          itemBuilder: (context, snapshot, animation, index) {
-            final json = snapshot.value as Map<dynamic, dynamic>;
-            final event = Event.fromJson(json);
-            return ListTile(
-              title: Text(dateFormat.format(event.date) + " " + event.description),
-            );
-          },
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => () {},
-        tooltip: 'Termin anlegen',
-        child: const Icon(Icons.insert_invitation),
-      ),
-    );
-  }
 }

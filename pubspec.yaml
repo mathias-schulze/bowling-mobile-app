@@ -39,6 +39,7 @@ dependencies:
   intl: ^0.17.0
   firebase_core: ^1.16.0
   firebase_database: ^9.0.13
+  syncfusion_flutter_datepicker: 19.4.56
 
 dev_dependencies:
   flutter_launcher_icons: "^0.9.2"
