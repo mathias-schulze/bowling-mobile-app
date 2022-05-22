@@ -38,9 +38,9 @@ class _PlayerTabState extends State<PlayerTab> {
           query: _playerQuery,
           itemBuilder: (context, snapshot, animation, index) {
             final json = snapshot.value as Map<dynamic, dynamic>;
-            final player = _Player.fromJson(json);
+            final player = Player.fromJson(json);
             return ListTile(
-              title: Text(player._name),
+              title: Text(player.name),
             );
           },
         ),
@@ -86,20 +86,20 @@ class _PlayerTabState extends State<PlayerTab> {
       return;
     }
 
-    _playerRef.push().set(_Player(name).toJson());
+    _playerRef.push().set(Player(name).toJson());
   }
 }
 
-class _Player {
+class Player {
 
-  final String _name;
+  final String name;
 
-  _Player(this._name);
+  Player(this.name);
 
-  _Player.fromJson(Map<dynamic, dynamic> json)
-      : _name = json['name'] as String;
+  Player.fromJson(Map<dynamic, dynamic> json)
+      : name = json['name'] as String;
 
   Map<dynamic, dynamic> toJson() => <dynamic, dynamic>{
-    'name': _name,
+    'name': name,
   };
 }

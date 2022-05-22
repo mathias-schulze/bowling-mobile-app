@@ -1,10 +1,10 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'firebase_options.dart';
+import 'result.dart';
 import 'event.dart';
 import 'player.dart';
 
@@ -80,50 +80,4 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
-}
-
-class ResultTab extends StatefulWidget {
-  const ResultTab({Key? key}) : super(key: key);
-
-  @override
-  State<StatefulWidget> createState() => _ResultTabState();
-}
-
-class _ResultTabState extends State<ResultTab> {
-
-  final NumberFormat numberFormat = NumberFormat("###.0#", "de_De");
-
-  final _results = <_Result>[
-    _Result("Mathias", 200.0),
-    _Result("Norbert", 150.0),
-    _Result("Fahd", 145.0),
-    _Result("Christian", 140.0),
-  ];
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: ListView.builder(
-          itemCount: _results.length,
-          itemBuilder: (context, index) {
-            var result = _results[index];
-            return ListTile(
-              title: Text(result._player + " " + numberFormat.format(result._score)),
-            );
-          }
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => () {},
-        tooltip: 'Spieler hinzufügen',
-        child: const Icon(Icons.group_add),
-      ),
-    );
-  }
-}
-
-class _Result {
-  final String _player;
-  final double _score;
-
-  _Result(this._player, this._score);
 }
