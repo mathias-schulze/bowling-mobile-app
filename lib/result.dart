@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
+import 'package:select_dialog/select_dialog.dart';
 import 'player.dart';
 
 class ResultTab extends StatefulWidget {
@@ -17,6 +18,7 @@ class _ResultTabState extends State<ResultTab> {
 
   StreamSubscription? _currentEventListener;
   StreamSubscription? _allPlayersListener;
+  late DatabaseReference _playersForEventRef;
   StreamSubscription? _playersForEventListener;
   StreamSubscription? _gamesListener;
 
@@ -52,8 +54,9 @@ class _ResultTabState extends State<ResultTab> {
           if (_allPlayers.containsKey(dbPlayer.key)) {
             continue;
           }
-          var player = Player.fromJson(dbPlayer.value as Map<dynamic, dynamic>);
-          newPlayers[dbPlayer.key] = player;
+          var player = Player.fromJson(
+              dbPlayer.key, dbPlayer.value as Map<dynamic, dynamic>);
+          newPlayers[player.key] = player;
         }
         setState(() => _allPlayers.addAll(newPlayers));
       });
@@ -61,9 +64,9 @@ class _ResultTabState extends State<ResultTab> {
 
   void _readPlayersForEvent() {
     _playersForEventListener?.cancel();
-    _playersForEventListener = FirebaseDatabase.instance.ref()
-      .child('termin/$_currentEventKey/spieler')
-      .onValue.listen((event) {
+    _playersForEventRef = FirebaseDatabase.instance.ref()
+        .child('termin/$_currentEventKey/spieler');
+    _playersForEventListener = _playersForEventRef.onValue.listen((event) {
         Set<String?> newPlayersForEvent = {};
         for (var dbEventPlayer in event.snapshot.children) {
           newPlayersForEvent.add(dbEventPlayer.key);
@@ -153,11 +156,52 @@ class _ResultTabState extends State<ResultTab> {
           }
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => () {},
+        onPressed: () => _showAddPlayersToEventDialog(context),
         tooltip: 'Spieler hinzufügen',
         child: const Icon(Icons.group_add),
       ),
     );
+  }
+
+  Future _showAddPlayersToEventDialog(context) {
+
+    List<Player> players = _allPlayers.values
+        .where((player) => !_playersForEvent.contains(player.key))
+        .toList();
+    players.sort((p1, p2) => p1.name.compareTo(p2.name));
+
+    return SelectDialog.showModal<Player>(
+      context,
+      label: "Spieler auswählen",
+      showSearchBox: false,
+      multipleSelectedValues: [],
+      items: players,
+      itemBuilder: (context, item, isSelected) {
+        return ListTile(
+          trailing: isSelected ? const Icon(Icons.check) : null,
+          title: Text(item.name),
+          selected: isSelected,
+        );
+      },
+      onMultipleItemsChange: (List<Player> selectedPlayers) {
+        _addPlayersToEvent(selectedPlayers);
+      },
+      okButtonBuilder: (context, onPressed) {
+        return Align(
+          alignment: Alignment.bottomRight,
+          child: TextButton(
+            child: const Text("Hinzufügen"),
+            onPressed: onPressed,
+          ),
+        );
+      },
+    );
+  }
+
+  void _addPlayersToEvent(List<Player> players) {
+    for (var player in players) {
+      _playersForEventRef.child(player.key!).set(true);
+    }
   }
 }
 

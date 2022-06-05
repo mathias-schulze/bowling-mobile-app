@@ -38,7 +38,7 @@ class _PlayerTabState extends State<PlayerTab> {
           query: _playerQuery,
           itemBuilder: (context, snapshot, animation, index) {
             final json = snapshot.value as Map<dynamic, dynamic>;
-            final player = Player.fromJson(json);
+            final player = Player.fromJson(snapshot.key, json);
             return ListTile(
               title: Text(player.name),
             );
@@ -92,11 +92,12 @@ class _PlayerTabState extends State<PlayerTab> {
 
 class Player {
 
+  String? key;
   final String name;
 
   Player(this.name);
 
-  Player.fromJson(Map<dynamic, dynamic> json)
+  Player.fromJson(this.key, Map<dynamic, dynamic> json)
       : name = json['name'] as String;
 
   Map<dynamic, dynamic> toJson() => <dynamic, dynamic>{
