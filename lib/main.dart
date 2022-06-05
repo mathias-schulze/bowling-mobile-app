@@ -5,6 +5,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'firebase_options.dart';
 import 'result.dart';
+import 'stats.dart';
 import 'event.dart';
 import 'player.dart';
 
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: const DefaultTabController(
-        length: 3,
+        length: 4,
         child: MyHomePage(title: 'Bowling'),
       ),
       localizationsDelegates: const [
@@ -66,6 +67,7 @@ class _MyHomePageState extends State<MyHomePage> {
         bottom: const TabBar(
             tabs: [
               Tab(icon: Icon(Icons.format_list_numbered)),
+              Tab(icon: Icon(Icons.bar_chart)),
               Tab(icon: Icon(Icons.calendar_month)),
               Tab(icon: Icon(Icons.people)),
             ],
@@ -74,6 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
       body: const TabBarView(
           children: [
             ResultTab(),
+            StatsTab(),
             EventTab(),
             PlayerTab(),
           ]

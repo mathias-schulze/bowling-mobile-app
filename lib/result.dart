@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:select_dialog/select_dialog.dart';
 import 'player.dart';
+import 'game.dart';
 
 class ResultTab extends StatefulWidget {
   const ResultTab({Key? key}) : super(key: key);
@@ -24,9 +25,9 @@ class _ResultTabState extends State<ResultTab> {
   StreamSubscription? _gamesListener;
 
   late String _currentEventKey;
-  final Map<String?, Player> _allPlayers = {};
+  Map<String?, Player> _allPlayers = {};
   final Set<String?> _playersForEvent = {};
-  final List<_Game> _games = [];
+  final List<Game> _games = [];
 
   late TextEditingController _gameScoreController;
 
@@ -42,25 +43,10 @@ class _ResultTabState extends State<ResultTab> {
       .child('aktuellerTermin')
       .onValue.listen((event) {
         setState(() => _currentEventKey = event.snapshot.value as String);
-        _readAllPlayers();
+        getAllPlayers().then((value) => setState(() => _allPlayers = value));
         _readPlayersForEvent();
         _readGames();
       });
-  }
-
-  void _readAllPlayers() {
-    FirebaseDatabase.instance.ref().child('spieler').get().then((snapshot) {
-      Map<String?, Player> players = {};
-      for (var dbPlayer in snapshot.children) {
-        if (_allPlayers.containsKey(dbPlayer.key)) {
-          continue;
-        }
-        var player = Player.fromJson(
-            dbPlayer.key, dbPlayer.value as Map<dynamic, dynamic>);
-        players[player.key] = player;
-      }
-      setState(() => _allPlayers.addAll(players));
-    });
   }
 
   void _readPlayersForEvent() {
@@ -78,8 +64,8 @@ class _ResultTabState extends State<ResultTab> {
     _gamesRef = FirebaseDatabase.instance.ref().child('spiel');
     _gamesListener = _gamesRef.orderByChild("timestamp")
       .onChildAdded.listen((event) {
-        var game = _Game.fromJson(event.snapshot.value as Map<dynamic, dynamic>);
-        if (game._event == _currentEventKey) {
+        var game = Game.fromJson(event.snapshot.value as Map<dynamic, dynamic>);
+        if (game.event == _currentEventKey) {
           setState(() => _games.add(game));
         }
       });
@@ -105,11 +91,11 @@ class _ResultTabState extends State<ResultTab> {
     }
 
     for (var game in _games) {
-      var playerResults = results[game._player];
+      var playerResults = results[game.player];
       if (playerResults != null) {
         var games = playerResults._games;
         games.add(game);
-        int sum = games.map((game) => game._score)
+        int sum = games.map((game) => game.score)
             .reduce((value, element) => value + element);
         playerResults._avg = sum / games.length;
       }
@@ -139,7 +125,7 @@ class _ResultTabState extends State<ResultTab> {
             var result = results[index];
             return ListTile(
               title: Text(result._playerName + " / "
-                  + result._games.map((game) => game._score)
+                  + result._games.map((game) => game.score)
                       .join(",") + " / "
                   + numberFormat.format(result._avg)),
               onTap: () async {
@@ -194,7 +180,7 @@ class _ResultTabState extends State<ResultTab> {
   void _addGame(String playerKey, int score) {
     var timestamp = DateTime.now().millisecondsSinceEpoch;
     _gamesRef.push().set(
-        _Game(score, _currentEventKey, playerKey, timestamp).toJson());
+        Game(score, _currentEventKey, playerKey, timestamp).toJson());
   }
 
   Future _showAddPlayersToEventDialog(context) {
@@ -242,31 +228,8 @@ class _ResultTabState extends State<ResultTab> {
 class _Result {
   final String _playerKey;
   final String _playerName;
-  final List<_Game> _games = [];
+  final List<Game> _games = [];
   double _avg = 0;
 
   _Result(this._playerKey, this._playerName);
-}
-
-class _Game {
-
-  final int _score;
-  final String _event;
-  final String _player;
-  final int _timestamp;
-
-  _Game(this._score, this._event, this._player, this._timestamp);
-
-  _Game.fromJson(Map<dynamic, dynamic> json)
-      : _score = json['ergebnis'] as int,
-        _event = json['termin'] as String,
-        _player = json['spieler'] as String,
-        _timestamp = json['timestamp'] as int;
-
-  Map<dynamic, dynamic> toJson() => <dynamic, dynamic>{
-    'ergebnis': _score,
-    'termin': _event,
-    'spieler': _player,
-    'timestamp': _timestamp
-  };
 }

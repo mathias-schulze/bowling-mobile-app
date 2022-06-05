@@ -90,6 +90,20 @@ class _PlayerTabState extends State<PlayerTab> {
   }
 }
 
+Future<Map<String, Player>> getAllPlayers() async {
+
+  var playerSnapshot = await FirebaseDatabase.instance.ref().child('spieler').get();
+
+  Map<String, Player> players = {};
+  for (var dbPlayer in playerSnapshot.children) {
+    var player = Player.fromJson(
+        dbPlayer.key, dbPlayer.value as Map<dynamic, dynamic>);
+    players[player.key!] = player;
+  }
+
+  return players;
+}
+
 class Player {
 
   String? key;
